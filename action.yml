@@ -1,22 +1,38 @@
-name: 'Composite Run Steps Action Template'
+name: 'Remote Windows Machine Script Execution'
 
-description: 'Add description here'
+description: 'This action connects to an on-premises hosted windows machine and executes a PowerShell script'
 
 inputs:
-  input-1:
-    description: 'Add a description here'
+  script-path:
+    description: 'The local repository path to the script to be executed on the remote machine'
     required: true
-
-outputs:
-  output-1:
-    description: 'Add description here'
-    value: '${{ steps.step_1.outputs.world }}'
+  script-arguments:
+    description: 'A pipe delimited string, `|`, that contains the arguments for the script - Example: `arg1|arg2|arg3`'
+    required: false
+  server:
+    description: 'The name of the target server'
+    required: true
+  service-account-id:
+    description: 'The service account name'
+    required: true
+  service-account-password:
+    description: 'The service account password'
+    required: true
+  server-public-key:
+    description: 'Path to remote server public ssl key'
+    required: true
 
 runs:
   using: 'composite'
   steps:
-    - name: Step 1
-      id: step_1
-      shell: bash
+    - name: Remote Execution
+      shell: powershell
       run: |
-        echo "::set-output name=hello::world"
+        $secure_password = ConvertTo-SecureString -String ${{ inputs.service-account-password }} -AsPlainText -Force
+        ${{ github.action_path }}/remote_action.ps1 `
+          -script_path '${{ inputs.script-path }}' `
+          -script_arguments '${{ inputs.script-arguments }}' `
+          -server '${{ inputs.server }}' `
+          -user_id '${{ inputs.service-account-id }}' `
+          -password $secure_password `
+          -cert_path '${{ inputs.server-public-key }}'
