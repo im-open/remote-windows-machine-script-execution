@@ -1,0 +1,22 @@
+name: 'Composite Run Steps Action Template'
+
+description: 'Add description here'
+
+inputs:
+  input-1:
+    description: 'Add a description here'
+    required: true
+
+outputs:
+  output-1:
+    description: 'Add description here'
+    value: '${{ steps.step_1.outputs.world }}'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Step 1
+      id: step_1
+      shell: bash
+      run: |
+        echo "::set-output name=hello::world"
