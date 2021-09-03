@@ -1,74 +1,100 @@
-# composite-run-steps-action-template
+# Remote Windows Machine Script Execution
 
-This template can be used to quickly start a new custom composite-run-steps action repository.  Click the `Use this template` button at the top to get started.
+This action connects to an on-premises hosted windows machine and executes a PowerShell script.
 
-## TODOs
-- Readme
-  - [ ] Update the Inputs section with the correct action inputs
-  - [ ] Update the Outputs section with the correct action outputs
-  - [ ] Update the Example section with the correct usage   
-- action.yml
-  - [ ] Fill in the correct name, description, inputs and outputs and implement steps
-- CODEOWNERS
-  - [ ] Update as appropriate
-- Repository Settings
-  - [ ] On the *Options* tab check the box to *Automatically delete head branches*
-  - [ ] On the *Options* tab update the repository's visibility
-  - [ ] On the *Branches* tab add a branch protection rule
-    - [ ] Check *Require pull request reviews before merging*
-    - [ ] Check *Dismiss stale pull request approvals when new commits are pushed*
-    - [ ] Check *Require review from Code Owners*
-    - [ ] Check *Include Administrators*
-  - [ ] On the *Manage Access* tab add the appropriate groups
-- About Section (accessed on the main page of the repo, click the gear icon to edit)
-  - [ ] The repo should have a short description of what it is for
-  - [ ] Add one of the following topic tags:
-    | Topic Tag       | Usage                                    |
-    | --------------- | ---------------------------------------- |
-    | az              | For actions related to Azure             |
-    | code            | For actions related to building code     |
-    | certs           | For actions related to certificates      |
-    | db              | For actions related to databases         |
-    | git             | For actions related to Git               |
-    | iis             | For actions related to IIS               |
-    | microsoft-teams | For actions related to Microsoft Teams   |
-    | svc             | For actions related to Windows Services  |
-    | jira            | For actions related to Jira              |
-    | meta            | For actions related to running workflows |
-    | pagerduty       | For actions related to PagerDuty         |
-    | test            | For actions related to testing           |
-    | tf              | For actions related to Terraform         |
-  - [ ] Add any additional topics for an action if they apply    
-    
+## Index <!-- omit in toc -->
+
+- [Inputs](#inputs)
+- [Prerequisites](#prerequisites)
+- [Example](#example)
+- [References](#references)
+- [Code of Conduct](#code-of-conduct)
+- [License](#license)
 
 ## Inputs
-| Parameter | Is Required | Description           |
-| --------- | ----------- | --------------------- |
-| `input-1` | true        | Description goes here |
-| `input-2` | false       | Description goes here |
 
-## Outputs
-| Output     | Description           |
-| ---------- | --------------------- |
-| `output-1` | Description goes here |
+| Parameter                  | Is Required | Description                                                                                          |
+| -------------------------- | ----------- | ---------------------------------------------------------------------------------------------------- |
+| `script-path`              | true        | The local repository path to the script to be executed on the remote machine                         |
+| `script-arguments`         | false       | A pipe delimited string, `|`, that contains the arguments for the script - Example: `arg1|arg2|arg3` |
+| `server`                   | true        | The name of the target server                                                                        |
+| `service-account-id`       | true        | The service account name                                                                             |
+| `service-account-password` | true        | The service account password                                                                         |
+| `server-public-key`        | true        | Path to remote server public ssl key                                                                 |
+
+## Prerequisites
+
+The remote script execution action uses Web Services for Management, [WSMan], and Windows Remote Management, [WinRM], to create remote administrative sessions. Because of this, Windows Action Runners, `runs-on: [windows-2019]`, must be used. If the IIS server target is on a local network that is not publicly available, then specialized self-hosted runners, `runs-on: [self-hosted, windows-2019]`,  will need to be used to broker commands to the server.
+
+Inbound secure WinRm network traffic (TCP port 5986) must be allowed from the GitHub Actions Runners virtual network so that remote sessions can be received.
+
+Prep the remote IIS server to accept WinRM management calls.  In general the IIS server needs to have a [WSMan] listener that looks for incoming [WinRM] calls. Firewall exceptions need to be added for the secure WinRM TCP ports, and non-secure firewall rules should be disabled. More detailed information on the preparation of an on-prem server can be found in this article: [PowerShell Remoting over HTTPS with a self-signed SSL certificate]
+
+Here is an example script that would be run on the IIS server:
+
+  ```powershell
+  $Cert = New-SelfSignedCertificate -CertstoreLocation Cert:\LocalMachine\My -DnsName <<ip-address|fqdn-host-name>>
+
+  Export-Certificate -Cert $Cert -FilePath C:\temp\<<cert-name>>
+
+  Enable-PSRemoting -SkipNetworkProfileCheck -Force
+
+  # Check for HTTP listeners
+  dir wsman:\localhost\listener
+
+  # If HTTP Listeners exist, remove them
+  Get-ChildItem WSMan:\Localhost\listener | Where -Property Keys -eq "Transport=HTTP" | Remove-Item -Recurse
+
+  # If HTTPs Listeners don't exist, add one
+  New-Item -Path WSMan:\LocalHost\Listener -Transport HTTPS -Address * -CertificateThumbPrint $Cert.Thumbprint –Force
+
+  # This allows old WinRm hosts to use port 443
+  Set-Item WSMan:\localhost\Service\EnableCompatibilityHttpsListener -Value true
+
+  # Make sure an HTTPs inbound rule is allowed
+  New-NetFirewallRule -DisplayName "Windows Remote Management (HTTPS-In)" -Name "Windows Remote Management (HTTPS-In)" -Profile Any -LocalPort 5986 -Protocol TCP
+
+  # For security reasons, you might want to disable the firewall rule for HTTP that *Enable-PSRemoting* added:
+  Disable-NetFirewallRule -DisplayName "Windows Remote Management (HTTP-In)"
+  ```
+
+  - `ip-address` or `fqdn-host-name` can be used for the `DnsName` property in the certificate creation. It should be the name that the actions runner will use to call to the IIS server.
+  - `cert-name` can be any name.  This file will used to secure the traffic between the actions runner and the IIS server
 
 ## Example
 
 ```yml
-# TODO: Fill in the correct usage
-jobs:
-  job1:
-    runs-on: [self-hosted]
-    steps:
-      - uses: actions/checkout@v2
+...
 
-      - name: Add the action here
-        uses: im-open/this-repo@v1.0.0
-        with:
-          input-1: 'abc'
-          input-2: '123
+jobs:
+  execute-remote-script:
+   runs-on: [windows-2019]
+   env:
+      server: 'remote-server.domain.com'
+      cert-path: './server-cert'
+
+   steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Execute Script
+      uses: 'im-open/connect-to-remote-machine-and-run-script@v1.0.0'
+      with:
+        script-path: './execute-script.ps1'
+        script-arguments:  'arg1|arg2|arg3'
+        server: ${{ env.server }}
+        service-account-id: ${{ secrets.iis_admin_user }}
+        service-account-password: ${{ secrets.iis_admin_password }}
+        server-public-key: ${{ env.cert-path }}
+  ...
 ```
 
+It's important to note that the contents of the script are:
+> ...copied into a script block and the script block is run on each of the remote computers. This procedure is equivalent to using the ScriptBlock parameter to submit the contents of the script.[[1](#1)]
+
+## References
+
+<a id="1">1.</a> [PowerShell: Invoke-Command](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/invoke-command?view=powershell-7.1)
 
 ## Code of Conduct
 
@@ -77,3 +103,8 @@ This project has adopted the [im-open's Code of Conduct](https://github.com/im-o
 ## License
 
 Copyright &copy; 2021, Extend Health, LLC. Code released under the [MIT license](LICENSE).
+
+<!-- Links -->
+[PowerShell Remoting over HTTPS with a self-signed SSL certificate]: https://4sysops.com/archives/powershell-remoting-over-https-with-a-self-signed-ssl-certificate
+[WSMan]: https://docs.microsoft.com/en-us/windows/win32/winrm/ws-management-protocol
+[WinRM]: https://docs.microsoft.com/en-us/windows/win32/winrm/about-windows-remote-management
