@@ -22,7 +22,7 @@ This action connects to an on-premises hosted windows machine and executes a Pow
 | `server`                   | true        | The name of the target server                                                                        |
 | `service-account-id`       | true        | The service account name                                                                             |
 | `service-account-password` | true        | The service account password                                                                         |
-| `server-public-key`        | true        | Path to remote server public ssl key                                                                 |
+| `server-cert-path`         | false       | Path to remote server public ssl cert                                                                |
 
 ## Prerequisites
 
@@ -73,21 +73,19 @@ jobs:
    runs-on: [windows-2019]
    env:
       server: 'remote-server.domain.com'
-      cert-path: './server-cert'
 
    steps:
     - name: Checkout
       uses: actions/checkout@v2
 
     - name: Execute Script
-      uses: 'im-open/remote-windows-machine-script-execution@v1.0.1'
+      uses: 'im-open/remote-windows-machine-script-execution@v2.0.0'
       with:
         script-path: './execute-script.ps1'
         script-arguments:  'arg1|arg2|arg3'
         server: ${{ env.server }}
         service-account-id: ${{ secrets.iis_admin_user }}
         service-account-password: ${{ secrets.iis_admin_password }}
-        server-public-key: ${{ env.cert-path }}
   ...
 ```
 

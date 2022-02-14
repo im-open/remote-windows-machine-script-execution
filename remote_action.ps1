@@ -22,8 +22,10 @@ Write-Output "Server: $server"
 $credential = [PSCredential]::new($user_id, $password)
 $so = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
 
-Write-Output "Importing remote server cert..."
-Import-Certificate -Filepath $cert_path -CertStoreLocation 'Cert:\LocalMachine\Root'
+if ($cert_path.Length -gt 0) {
+    Write-Output "Importing remote server cert..."
+    Import-Certificate -Filepath $cert_path -CertStoreLocation 'Cert:\LocalMachine\Root'
+}
 
 $args = $script_arguments -split '\|'
 
