@@ -19,7 +19,7 @@ inputs:
     description: 'The service account password'
     required: true
   server-cert-path:
-    description: 'Path to remote server public ssl cert'
+    description: 'Path to remote server public ssl cert, only necessary if the cert is not already installed on the actions runner'
     required: false
     default: ''
 

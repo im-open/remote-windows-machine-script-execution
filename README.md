@@ -15,14 +15,14 @@ This action connects to an on-premises hosted windows machine and executes a Pow
 
 ## Inputs
 
-| Parameter                  | Is Required | Description                                                                                          |
-| -------------------------- | ----------- | ---------------------------------------------------------------------------------------------------- |
-| `script-path`              | true        | The local repository path to the script to be executed on the remote machine                         |
-| `script-arguments`         | false       | A pipe delimited string, `|`, that contains the arguments for the script - Example: `arg1|arg2|arg3` |
-| `server`                   | true        | The name of the target server                                                                        |
-| `service-account-id`       | true        | The service account name                                                                             |
-| `service-account-password` | true        | The service account password                                                                         |
-| `server-cert-path`         | false       | Path to remote server public ssl cert                                                                |
+| Parameter                  | Is Required | Description                                                                                                      |
+| -------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------- |
+| `script-path`              | true        | The local repository path to the script to be executed on the remote machine                                     |
+| `script-arguments`         | false       | A pipe delimited string, `|`, that contains the arguments for the script - Example: `arg1|arg2|arg3`             |
+| `server`                   | true        | The name of the target server                                                                                    |
+| `service-account-id`       | true        | The service account name                                                                                         |
+| `service-account-password` | true        | The service account password                                                                                     |
+| `server-cert-path`         | false       | Path to remote server public ssl cert, only necessary if the cert is not already installed on the actions runner |
 
 ## Prerequisites
 
