@@ -9,7 +9,7 @@ Param(
     [string]$user_id,
     [parameter(Mandatory = $true)]
     [SecureString]$password,
-    [parameter(Mandatory = $true)]
+    [parameter(Mandatory = $false)]
     [string]$cert_path
 )
 
