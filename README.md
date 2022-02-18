@@ -15,14 +15,13 @@ This action connects to an on-premises hosted windows machine and executes a Pow
 
 ## Inputs
 
-| Parameter                  | Is Required | Description                                                                                                      |
-| -------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------- |
-| `script-path`              | true        | The local repository path to the script to be executed on the remote machine                                     |
-| `script-arguments`         | false       | A pipe delimited string, `|`, that contains the arguments for the script - Example: `arg1|arg2|arg3`             |
-| `server`                   | true        | The name of the target server                                                                                    |
-| `service-account-id`       | true        | The service account name                                                                                         |
-| `service-account-password` | true        | The service account password                                                                                     |
-| `server-cert-path`         | false       | Path to remote server public ssl cert, only necessary if the cert is not already installed on the actions runner |
+| Parameter                  | Is Required | Description                                                                                          |
+| -------------------------- | ----------- | ---------------------------------------------------------------------------------------------------- |
+| `script-path`              | true        | The local repository path to the script to be executed on the remote machine                         |
+| `script-arguments`         | false       | A pipe delimited string, `|`, that contains the arguments for the script - Example: `arg1|arg2|arg3` |
+| `server`                   | true        | The name of the target server                                                                        |
+| `service-account-id`       | true        | The service account name                                                                             |
+| `service-account-password` | true        | The service account password                                                                         |
 
 ## Prerequisites
 
@@ -122,6 +121,7 @@ This project has adopted the [im-open's Code of Conduct](https://github.com/im-o
 
 Copyright &copy; 2021, Extend Health, LLC. Code released under the [MIT license](LICENSE).
 
+<!-- Links -->
 [git-version-lite]: https://github.com/im-open/git-version-lite
 [PowerShell Remoting over HTTPS with a self-signed SSL certificate]: https://4sysops.com/archives/powershell-remoting-over-https-with-a-self-signed-ssl-certificate
 [WSMan]: https://docs.microsoft.com/en-us/windows/win32/winrm/ws-management-protocol
