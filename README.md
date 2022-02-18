@@ -22,7 +22,6 @@ This action connects to an on-premises hosted windows machine and executes a Pow
 | `server`                   | true        | The name of the target server                                                                        |
 | `service-account-id`       | true        | The service account name                                                                             |
 | `service-account-password` | true        | The service account password                                                                         |
-| `server-public-key`        | true        | Path to remote server public ssl key                                                                 |
 
 ## Prerequisites
 
@@ -73,21 +72,19 @@ jobs:
    runs-on: [windows-2019]
    env:
       server: 'remote-server.domain.com'
-      cert-path: './server-cert'
 
    steps:
     - name: Checkout
       uses: actions/checkout@v2
 
     - name: Execute Script
-      uses: 'im-open/remote-windows-machine-script-execution@v1.0.1'
+      uses: 'im-open/remote-windows-machine-script-execution@v2.0.0'
       with:
         script-path: './execute-script.ps1'
         script-arguments:  'arg1|arg2|arg3'
         server: ${{ env.server }}
         service-account-id: ${{ secrets.iis_admin_user }}
         service-account-password: ${{ secrets.iis_admin_password }}
-        server-public-key: ${{ env.cert-path }}
   ...
 ```
 
@@ -124,6 +121,7 @@ This project has adopted the [im-open's Code of Conduct](https://github.com/im-o
 
 Copyright &copy; 2021, Extend Health, LLC. Code released under the [MIT license](LICENSE).
 
+<!-- Links -->
 [git-version-lite]: https://github.com/im-open/git-version-lite
 [PowerShell Remoting over HTTPS with a self-signed SSL certificate]: https://4sysops.com/archives/powershell-remoting-over-https-with-a-self-signed-ssl-certificate
 [WSMan]: https://docs.microsoft.com/en-us/windows/win32/winrm/ws-management-protocol
