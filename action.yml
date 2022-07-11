@@ -25,7 +25,10 @@ runs:
     - name: Remote Execution
       shell: powershell
       run: |
-        $secure_password = ConvertTo-SecureString -String "${{ inputs.service-account-password }}" -AsPlainText -Force
+        $deployment_password_string = @'
+        ${{ inputs.service-account-password }}
+        '@
+        $secure_password = ConvertTo-SecureString -String $deployment_password_string -AsPlainText -Force
         ${{ github.action_path }}/remote_action.ps1 `
           -script_path '${{ inputs.script-path }}' `
           -script_arguments '${{ inputs.script-arguments }}' `
