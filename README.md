@@ -101,10 +101,18 @@ It's important to note that the contents of the script are:
 When creating new PRs please ensure:
 
 1. For major or minor changes, at least one of the commit messages contains the appropriate `+semver:` keywords listed under [Incrementing the Version](#incrementing-the-version).
-2. The `README.md` example has been updated with the new version. See [Incrementing the Version](#incrementing-the-version).
-3. The action code does not contain sensitive information.
+1. The action code does not contain sensitive information.
+
+When a pull request is created and there are changes to code-specific files and folders, the `auto-update-readme` workflow will run.  The workflow will update the action-examples in the README.md if they have not been updated manually by the PR author. The following files and folders contain action code and will trigger the automatic updates:
+
+- `action.yml`
+- `remote_action.ps1`
+
+There may be some instances where the bot does not have permission to push changes back to the branch though so this step should be done manually for those branches. See [Incrementing the Version](#incrementing-the-version) for more details.
 
 ### Incrementing the Version
+
+The `auto-update-readme` and PR merge workflows will use the strategies below to determine what the next version will be.  If the `auto-update-readme` workflow was not able to automatically update the README.md action-examples with the next version, the README.md should be updated manually as part of the PR using that calculated version.
 
 This action uses [git-version-lite] to examine commit messages to determine whether to perform a major, minor or patch increment on merge. The following table provides the fragment that should be included in a commit message to active different increment strategies.
 | Increment Type | Commit Message Fragment |
