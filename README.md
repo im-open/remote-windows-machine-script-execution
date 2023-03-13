@@ -18,7 +18,7 @@ This action connects to an on-premises hosted windows machine and executes a Pow
 | Parameter                  | Is Required | Description                                                                  |
 | -------------------------- | ----------- | ---------------------------------------------------------------------------- | -------------------------------------------------------------- | ---- | ----- |
 | `script-path`              | true        | The local repository path to the script to be executed on the remote machine |
-| `script-arguments`         | false       | A pipe delimited string, `                                                   | `, that contains the arguments for the script - Example: `arg1 | arg2 | arg3` |
+| `script-arguments`         | false       | A pipe delimited string, `|`, that contains the arguments for the script - Example: `arg1 | arg2 | arg3` |
 | `server`                   | true        | The name of the target server                                                |
 | `service-account-id`       | true        | The service account name                                                     |
 | `service-account-password` | true        | The service account password                                                 |
@@ -78,7 +78,8 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Execute Script
-      uses: 'im-open/remote-windows-machine-script-execution@v2.0.2'
+      # You may also reference the major or major.minor version
+      uses: im-open/remote-windows-machine-script-execution@v2.0.3
       with:
         script-path: './execute-script.ps1'
         script-arguments:  'arg1|arg2|arg3'
