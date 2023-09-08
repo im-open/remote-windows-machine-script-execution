@@ -1,3 +1,7 @@
+# DEPRECATED
+
+This action was deprecated on 2023-09-08 and will no longer receive support or updates.
+
 # Remote Windows Machine Script Execution
 
 This action connects to an on-premises hosted windows machine and executes a PowerShell script.
